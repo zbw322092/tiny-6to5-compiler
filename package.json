@@ -1,0 +1,9 @@
+{
+  "name": "tiny-6to5-compiler",
+  "version": "1.0.0",
+  "description": "compiler some features es6 to es5",
+  "main": "index.js",
+  "repository": "https://github.com/zbw322092/tiny-6to5-compiler.git",
+  "author": "Bowen Zhong <bz4e14@soton.ac.uk>",
+  "license": "MIT"
+}
