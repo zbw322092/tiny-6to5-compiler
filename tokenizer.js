@@ -1,32 +1,37 @@
+const { 
+  isIdentifierStart,
+  isIdentifierPart
+ } = require('./character.js');
+
 const tokens = [];
 let current = 0;
-
-// Regex
-const FUNCTION = /\b(function)\b/;
-const LETTERS = /[a-z]/i;
-const WHITESPACE = /\s/;
 
 function tokenizer (input) {
   if (typeof input !== 'string') throw new Error('input should be a string');
   input = input.trim();
 
-  let char = input[current];
-
   while (current < input.length) {
 
-    if (LETTERS.test(char)) {
+    let char = input.charCodeAt(current);
+    
+    if (isIdentifierPart(char)) {
       let value = '';
-      while (LETTERS.test(char)) {
-        value += char;
-        char = input[++current];
+      while (isIdentifierPart(char)) {
+        value += String.fromCharCode(char);
+        char = input.charCodeAt(++current);
       }
 
-      if (FUNCTION.test(value)) {
-        tokens.push({ 'type': 'Keyword', value: 'function' });
+      if (value === 'function') {
+        tokens.push({ "type": "Keyword", "value": "function" });
+      } else if (value === 'null') {
+        tokens.push({ "type": "Null", "value": "null" });
+      } else if (value === 'true' || value ==='false') {
+        tokens.push({ "type": "Boolean", "value": value });
       } else {
-        throw new Error('begin with unknown keyword');
+        tokens.push({ "type": "Identifier", "value": value });
       }
 
+      continue;
     }
 
     ++current;

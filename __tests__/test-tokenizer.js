@@ -5,7 +5,8 @@ const tokenizer = require('../tokenizer.js');
 const src = fs.readFileSync(path.join(__dirname, './files/file.js'), 'utf8');
 
 const expected1 = [
-  { 'type': 'Keyword', value: 'function' }
+  { 'type': 'Keyword', value: 'function' },
+  { 'type': 'Identifier', value: 'hi' }
 ];
 const result1 = tokenizer(src);
 
