@@ -1,6 +1,7 @@
 const { 
   isIdentifierStart,
-  isIdentifierPart
+  isIdentifierPart,
+  punctuators
  } = require('./character.js');
 
 const tokens = [];
@@ -13,9 +14,21 @@ function tokenizer (input) {
   while (current < input.length) {
 
     let char = input.charCodeAt(current);
+
+    if (char === 0x27) {
+      let value = "'";
+      char = input.charCodeAt(++current);
+      while (char !== 0x27 && char !== 0x22) {
+        value += String.fromCharCode(char);
+        char = input.charCodeAt(++current);
+      }
+      value += "'";
+      
+      tokens.push({ "type": "String", "value": value });
+    }
     
     if (isIdentifierPart(char)) {
-      let value = '';
+      let value = "";
       while (isIdentifierPart(char)) {
         value += String.fromCharCode(char);
         char = input.charCodeAt(++current);
@@ -31,7 +44,10 @@ function tokenizer (input) {
         tokens.push({ "type": "Identifier", "value": value });
       }
 
-      continue;
+    }
+
+    if (punctuators.includes(String.fromCharCode(char))) {
+      tokens.push({ "type": "Punctuator", "value": String.fromCharCode(char) });
     }
 
     ++current;

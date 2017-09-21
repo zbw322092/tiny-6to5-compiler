@@ -24,6 +24,8 @@ module.exports = {
       (cp >= 0x30 && cp <= 0x39) ||         // 0..9
       (cp === 0x5C) ||                      // \ (backslash)
       ((cp >= 0x80) && Regex.NonAsciiIdentifierPart.test(Character.fromCodePoint(cp)));
-  }
+  },
+
+  punctuators: ['{','}',"(",")","=",",","+",".",";"]
 
 };

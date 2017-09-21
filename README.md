@@ -16,3 +16,12 @@ https://ariya.io/2012/07/most-popular-javascript-tokens <br>
 [4] esprima character.ts
 https://github.com/jquery/esprima/blob/master/src/character.ts <br>
 
+[5] ECMAScript Language: Lexical Grammar
+https://tc39.github.io/ecma262/#sec-ecmascript-language-lexical-grammar <br>
+
+
+
+## further reading
+[1] Programming with Unicode
+http://unicodebook.readthedocs.io/about.html
+
