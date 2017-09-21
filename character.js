@@ -26,6 +26,8 @@ module.exports = {
       ((cp >= 0x80) && Regex.NonAsciiIdentifierPart.test(Character.fromCodePoint(cp)));
   },
 
-  punctuators: ['{','}',"(",")","=",",","+",".",";"]
+  punctuators: ['{','}',"(",")","=",",","+",".",";"],
+
+  whiteSpace: /\s/
 
 };
