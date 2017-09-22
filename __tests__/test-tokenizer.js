@@ -117,14 +117,7 @@ const expected1 = [
 ];
 const result1 = tokenizer(src);
 
-const expected2 = 'TypeError: Unexpected token: I dont know what this character is: 1';
-// const result2 = tokenizer(src2);
-
 
 test('tokenizer function', () => {
   expect(result1).toEqual(expected1);
 });
-
-// test('throw unexpected token error', () => {
-//   expect(result2).toThrowError(expected2);
-// });
