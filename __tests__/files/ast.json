@@ -42,7 +42,6 @@
               "type": "CallExpression",
               "callee": {
                 "type": "MemberExpression",
-                "computed": false,
                 "object": {
                   "type": "Identifier",
                   "name": "console"
@@ -87,11 +86,7 @@
             }
           }
         ]
-      },
-      "generator": false,
-      "expression": false,
-      "async": false
+      }
     }
-  ],
-  "sourceType": "script"
+  ]
 }
