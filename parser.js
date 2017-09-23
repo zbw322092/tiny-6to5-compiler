@@ -400,7 +400,13 @@ function parser(tokens) {
     throw new TypeError('Uncaught SyntaxError: Unexpected ' + token.type);
   }
 
-  return node;
+  let ast = {
+    "type": "Program",
+    "body": []
+  };
+
+  ast.body.push(node);
+  return ast;
 }
 
 module.exports = parser(tokens);

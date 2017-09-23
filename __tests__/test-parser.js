@@ -2,93 +2,99 @@ const fs = require('fs');
 const path = require('path');
 const parser = require('../parser.js');
 
-const expected1 = {
-  "type": "FunctionDeclaration",
-  "id": {
-    "type": "Identifier",
-    "name": "hi"
-  },
-  "params": [
-    {
-      "type": "AssignmentPattern",
-      "left": {
-        "type": "Identifier",
-        "name": "name"
-      },
-      "right": {
-        "type": "Literal",
-        "value": "Bo",
-        "raw": "'Bo'"
-      }
-    },
-    {
-      "type": "AssignmentPattern",
-      "left": {
-        "type": "Identifier",
-        "name": "age"
-      },
-      "right": {
-        "type": "Literal",
-        "value": "18",
-        "raw": "'18'"
-      }
-    }
-  ],
-  "body": {
-    "type": "BlockStatement",
+const expected1 =
+  {
+    "type": "Program",
     "body": [
       {
-        "type": "ReturnStatement",
-        "argument": {
-          "type": "CallExpression",
-          "callee": {
-            "type": "MemberExpression",
-            "object": {
+        "type": "FunctionDeclaration",
+        "id": {
+          "type": "Identifier",
+          "name": "hi"
+        },
+        "params": [
+          {
+            "type": "AssignmentPattern",
+            "left": {
               "type": "Identifier",
-              "name": "console"
+              "name": "name"
             },
-            "property": {
-              "type": "Identifier",
-              "name": "log"
+            "right": {
+              "type": "Literal",
+              "value": "Bo",
+              "raw": "'Bo'"
             }
           },
-          "arguments": [
+          {
+            "type": "AssignmentPattern",
+            "left": {
+              "type": "Identifier",
+              "name": "age"
+            },
+            "right": {
+              "type": "Literal",
+              "value": "18",
+              "raw": "'18'"
+            }
+          }
+        ],
+        "body": {
+          "type": "BlockStatement",
+          "body": [
             {
-              "type": "BinaryExpression",
-              "operator": "+",
-              "left": {
-                "type": "BinaryExpression",
-                "operator": "+",
-                "left": {
-                  "type": "BinaryExpression",
-                  "operator": "+",
-                  "left": {
-                    "type": "Literal",
-                    "value": "hi there, it is ",
-                    "raw": "'hi there, it is '"
-                  },
-                  "right": {
+              "type": "ReturnStatement",
+              "argument": {
+                "type": "CallExpression",
+                "callee": {
+                  "type": "MemberExpression",
+                  "object": {
                     "type": "Identifier",
-                    "name": "name"
+                    "name": "console"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "log"
                   }
                 },
-                "right": {
-                  "type": "Literal",
-                  "value": " I am ",
-                  "raw": "' I am '"
-                }
-              },
-              "right": {
-                "type": "Identifier",
-                "name": "age"
+                "arguments": [
+                  {
+                    "type": "BinaryExpression",
+                    "operator": "+",
+                    "left": {
+                      "type": "BinaryExpression",
+                      "operator": "+",
+                      "left": {
+                        "type": "BinaryExpression",
+                        "operator": "+",
+                        "left": {
+                          "type": "Literal",
+                          "value": "hi there, it is ",
+                          "raw": "'hi there, it is '"
+                        },
+                        "right": {
+                          "type": "Identifier",
+                          "name": "name"
+                        }
+                      },
+                      "right": {
+                        "type": "Literal",
+                        "value": " I am ",
+                        "raw": "' I am '"
+                      }
+                    },
+                    "right": {
+                      "type": "Identifier",
+                      "name": "age"
+                    }
+                  }
+                ]
               }
             }
           ]
         }
       }
     ]
-  }
-};
+  };
 
 const result1 = parser;
 
