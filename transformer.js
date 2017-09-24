@@ -1,5 +1,98 @@
 const traverser = require('./traverser.js');
 
+let ast = {
+  "type": "Program",
+  "body": [
+    {
+      "type": "FunctionDeclaration",
+      "id": {
+        "type": "Identifier",
+        "name": "hi"
+      },
+      "params": [
+        {
+          "type": "AssignmentPattern",
+          "left": {
+            "type": "Identifier",
+            "name": "name"
+          },
+          "right": {
+            "type": "Literal",
+            "value": "Bo",
+            "raw": "'Bo'"
+          }
+        },
+        // {
+        //   "type": "AssignmentPattern",
+        //   "left": {
+        //     "type": "Identifier",
+        //     "name": "age"
+        //   },
+        //   "right": {
+        //     "type": "Literal",
+        //     "value": "18",
+        //     "raw": "'18'"
+        //   }
+        // }
+      ],
+      "body": {
+        "type": "BlockStatement",
+        "body": [
+          {
+            "type": "ReturnStatement",
+            "argument": {
+              "type": "CallExpression",
+              "callee": {
+                "type": "MemberExpression",
+                "object": {
+                  "type": "Identifier",
+                  "name": "console"
+                },
+                "property": {
+                  "type": "Identifier",
+                  "name": "log"
+                }
+              },
+              "arguments": [
+                {
+                  "type": "BinaryExpression",
+                  "operator": "+",
+                  "left": {
+                    "type": "BinaryExpression",
+                    "operator": "+",
+                    "left": {
+                      "type": "BinaryExpression",
+                      "operator": "+",
+                      "left": {
+                        "type": "Literal",
+                        "value": "hi there, it is ",
+                        "raw": "'hi there, it is '"
+                      },
+                      "right": {
+                        "type": "Identifier",
+                        "name": "name"
+                      }
+                    },
+                    "right": {
+                      "type": "Literal",
+                      "value": " I am ",
+                      "raw": "' I am '"
+                    }
+                  },
+                  "right": {
+                    "type": "Identifier",
+                    "name": "age"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+};
+
 function transformer(ast) {
 
   let newAst = {
@@ -13,88 +106,104 @@ function transformer(ast) {
     'FunctionDeclaration': {
       enter(node, parent) {
 
-        let VariableDeclarationObj = {
-          "type": "VariableDeclaration",
-          "declarations": [
-            {
-              "type": "VariableDeclarator",
-              "id": {
-                "type": "Identifier",
-                "name": "name"
-              },
-              "init": {}
-            }
-          ],
-          "kind": "var"
-        };
-
-        let initConditionalExpressionObj = {
-          "type": "ConditionalExpression",
-          "test": {
-            "type": "LogicalExpression",
-            "operator": "&&",
-            "left": {
-              "type": "BinaryExpression",
-              "operator": ">",
-              "left": {
-                "type": "MemberExpression",
-                "computed": false,
-                "object": {
+        function VariableDeclaration (name, init) {
+          return `{
+            "type": "VariableDeclaration",
+            "declarations": [
+              {
+                "type": "VariableDeclarator",
+                "id": {
                   "type": "Identifier",
-                  "name": "arguments"
+                  "name": "${name}"
                 },
-                "property": {
-                  "type": "Identifier",
-                  "name": "length"
+                "init": ${init}
+              }
+            ],
+            "kind": "var"
+          }`;
+        }
+
+        function initConditionalExpression (index, value) {
+          return `{
+            "type": "ConditionalExpression",
+            "test": {
+              "type": "LogicalExpression",
+              "operator": "&&",
+              "left": {
+                "type": "BinaryExpression",
+                "operator": ">",
+                "left": {
+                  "type": "MemberExpression",
+                  "object": {
+                    "type": "Identifier",
+                    "name": "arguments"
+                  },
+                  "property": {
+                    "type": "Identifier",
+                    "name": "length"
+                  }
+                },
+                "right": {
+                  "type": "Literal",
+                  "value": ${index},
+                  "raw": "${index}"
                 }
               },
               "right": {
-                "type": "Literal",
-                "value": 0,
-                "raw": "0"
+                "type": "BinaryExpression",
+                "operator": "!==",
+                "left": {
+                  "type": "MemberExpression",
+                  "object": {
+                    "type": "Identifier",
+                    "name": "arguments"
+                  },
+                  "property": {
+                    "type": "Literal",
+                    "value": ${index},
+                    "raw": "${index}"
+                  }
+                },
+                "right": {
+                  "type": "Identifier",
+                  "name": "undefined"
+                }
               }
             },
-            "right": {
-              "type": "BinaryExpression",
-              "operator": "!==",
-              "left": {
-                "type": "MemberExpression",
-                "computed": true,
-                "object": {
-                  "type": "Identifier",
-                  "name": "arguments"
-                },
-                "property": {
-                  "type": "Literal",
-                  "value": 0,
-                  "raw": "0"
-                }
-              },
-              "right": {
+            "consequent": {
+              "type": "MemberExpression",
+              "object": {
                 "type": "Identifier",
-                "name": "undefined"
+                "name": "arguments"
+              },
+              "property": {
+                "type": "Literal",
+                "value": ${index},
+                "raw": "${index}"
               }
+            },
+            "alternate": {
+              "type": "Literal",
+              "value": "${value}",
+              "raw": "'${value}'"
             }
-          },
-          "consequent": {
+          }`;
+        }
+
+        function initMemberExpression (index, value) {
+          return `{
             "type": "MemberExpression",
-            "computed": true,
             "object": {
               "type": "Identifier",
               "name": "arguments"
             },
             "property": {
               "type": "Literal",
-              "value": 0,
-              "raw": "0"
+              "value": ${index},
+              "raw": "${index}"
             }
-          },
-          "alternate": {
-            "type": "Literal",
-            "value": undefined,
-            "raw": undefined
-          }
-        };
+          }`
+        }
 
         let allIdentifier = true;
         node.params.forEach((childNode) => {
@@ -107,56 +216,37 @@ function transformer(ast) {
 
           parent._context.push({
             "type": node.type,
-            "node": node.id,
+            "id": node.id,
+            "params": [],
             "body": {
               "type": "BlockStatement",
               "body": node.body.body
             }
           });
 
-          node.params.forEach((childNode) => {
+          node.params.forEach((childNode, key) => {
 
             if (childNode.type === 'AssignmentPattern') {
-              let initExpression = Object.assign({}, initConditionalExpressionObj, {
-                "test": {
-                  "right": {
-                    "property": {
-                      "value": index,
-                      "raw": `"${index}"`
-                    },
-                    "consequent": {
-                      "property": {
-                        "value": index,
-                        "raw": `"${index}"`
-                      }
-                    },
-                    "alternate": childNode.right
-                  }
-                }
-              });
-              let VariableDeclaration = Object.assign({}, VariableDeclarationObj);
-              VariableDeclaration.declarations[0].init = initExpression;
 
-              parent._context.body.body.unshift(VariableDeclaration);
+              let index = key;
+              let value = childNode.right.value;
+              let name = childNode.left.name;
+
+              let initConditionalExpressionStr = initConditionalExpression(index, value);
+              let VariableDeclarationObj = JSON.parse(VariableDeclaration(name, initConditionalExpressionStr));
+
+              parent._context[0].body.body.splice(index, 0, VariableDeclarationObj);
 
             } else if (childNode.type === 'Identifier') {
-              let initExpression = {
-                "type": "MemberExpression",
-                "computed": true,
-                "object": {
-                  "type": "Identifier",
-                  "name": "arguments"
-                },
-                "property": {
-                  "type": "Literal",
-                  "value": index,
-                  "raw": `"${index}"`
-                }
-              };
-              let VariableDeclaration = Object.assign({}, VariableDeclarationObj);
-              VariableDeclaration.declarations[0].init = initExpression;
+              
+              let index = key;
+              let value = childNode.right.value;
+              let name = childNode.left.name;
 
-              parent._context.body.body.unshift(VariableDeclaration);
+              let initMemberExpressionStr = initMemberExpression(index, value);
+              let VariableDeclarationObj = JSON.parse(VariableDeclaration(name, initMemberExpressionStr));
+
+              parent._context[0].body.body.splice(index, 0, VariableDeclarationObj);
             } else {
               throw TypeError('Invalid node type: ', childNode.type);
             }
@@ -172,5 +262,7 @@ function transformer(ast) {
   return newAst;
 
 }
+
+transformer(ast);
 
 module.exports = transformer;
