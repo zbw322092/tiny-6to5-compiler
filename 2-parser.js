@@ -1,115 +1,3 @@
-const tokens = [
-  {
-    "type": "Keyword",
-    "value": "function"
-  },
-  {
-    "type": "Identifier",
-    "value": "hi"
-  },
-  {
-    "type": "Punctuator",
-    "value": "("
-  },
-  {
-    "type": "Identifier",
-    "value": "name"
-  },
-  {
-    "type": "Punctuator",
-    "value": "="
-  },
-  {
-    "type": "String",
-    "value": "'Bo'"
-  },
-  {
-    "type": "Punctuator",
-    "value": ","
-  },
-  {
-    "type": "Identifier",
-    "value": "age"
-  },
-  {
-    "type": "Punctuator",
-    "value": "="
-  },
-  {
-    "type": "String",
-    "value": "'18'"
-  },
-  {
-    "type": "Punctuator",
-    "value": ")"
-  },
-  {
-    "type": "Punctuator",
-    "value": "{"
-  },
-  {
-    "type": "Keyword",
-    "value": "return"
-  },
-  {
-    "type": "Identifier",
-    "value": "console"
-  },
-  {
-    "type": "Punctuator",
-    "value": "."
-  },
-  {
-    "type": "Identifier",
-    "value": "log"
-  },
-  {
-    "type": "Punctuator",
-    "value": "("
-  },
-  {
-    "type": "String",
-    "value": "'hi there, it is '"
-  },
-  {
-    "type": "Punctuator",
-    "value": "+"
-  },
-  {
-    "type": "Identifier",
-    "value": "name"
-  },
-  {
-    "type": "Punctuator",
-    "value": "+"
-  },
-  {
-    "type": "String",
-    "value": "' I am '"
-  },
-  {
-    "type": "Punctuator",
-    "value": "+"
-  },
-  {
-    "type": "Identifier",
-    "value": "age"
-  },
-  {
-    "type": "Punctuator",
-    "value": ")"
-  },
-  {
-    "type": "Punctuator",
-    "value": ";"
-  },
-  {
-    "type": "Punctuator",
-    "value": "}"
-  }
-];
-
-
 function parser(tokens) {
   let current = 0;
 
@@ -196,8 +84,6 @@ function parser(tokens) {
           ) {
             throw new TypeError('Uncaught SyntaxError: Unexpected ' + tokens[current].value);
           }
-
-          console.log(node);
 
         } else {
           throw new TypeError('Uncaught SyntaxError: Unexpected ' + tokens[current].type);
@@ -409,4 +295,4 @@ function parser(tokens) {
   return ast;
 }
 
-module.exports = parser(tokens);
+module.exports = parser;

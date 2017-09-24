@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const transformer = require('../transformer.js');
+const transformer = require('../3-transformer.js');
 
 let ast = {
   "type": "Program",

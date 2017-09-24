@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const tokenizer = require('../tokenizer.js');
+const tokenizer = require('../1-tokenizer.js');
 
 const src = fs.readFileSync(path.join(__dirname, './files/file.js'), 'utf8');
 const src2 = fs.readFileSync(path.join(__dirname, './files/file2-unexpected-token.js'), 'utf8');
