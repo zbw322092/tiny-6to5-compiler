@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const compiler = require('../compiler.js');
+const compiler = require('../src/compiler.js');
 
 let input = fs.readFileSync(path.join(__dirname, 'files/input-file.js'), 'utf8');
 

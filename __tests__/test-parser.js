@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const parser = require('../2-parser.js');
+const parser = require('../src/2-parser.js');
 
 const expected1 =
   {
