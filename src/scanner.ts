@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const src = fs.readFileSync(path.join(__dirname, '../__tests__/files/file.js'), 'utf8');
 
-import { 
+import {
   isLineTerminator,
   isWhiteSpace
 } from './character';
@@ -70,6 +70,137 @@ class Scanner {
     return this.index >= this.length;
   }
 
+  private skipSingleLineComment(offset: number): Comment[] {
+    let comments: Comment[] = [];
+    let start, loc;
+
+    if (this.trackComment) {
+      start = this.index - offset;
+      loc = {
+        start: {
+          line: this.lineNumber,
+          column: this.index - this.lineStart - offset
+        },
+        end: {}
+      };
+    }
+
+    while (!this.eof()) {
+      let ch = this.source.charCodeAt(this.index);
+      ++this.index;
+      if (isLineTerminator(ch)) {
+        if (this.trackComment) {
+          loc.end = {
+            line: this.lineNumber,
+            column: this.index - this.lineStart - 1
+          };
+
+          const entry: Comment = {
+            multiLine: false,
+            slice: [start + offset, this.index - 1],
+            range: [start, this.index - 1],
+            loc: loc
+          };
+
+          comments.push(entry);
+        }
+
+        // the <CR><LF> sequence
+        if (ch === 0x000D && this.source.charCodeAt(this.index) === 0x000A) {
+          ++this.index;
+        }
+        ++this.lineNumber;
+        this.lineStart = this.index;
+        return comments;
+      }
+    }
+
+    if (this.trackComment) {
+      loc.end = {
+        line: this.lineNumber,
+        column: this.index - this.lineStart
+      };
+      const entry: Comment = {
+        multiLine: false,
+        slice: [start + offset, this.index],
+        range: [start, this.index],
+        loc: loc
+      };
+      comments.push(entry);
+    }
+
+    return comments;
+
+  }
+
+  private skipMultiLineComment(): Comment[] {
+    let comments: Comment[] = [];
+    let start, loc;
+
+    if (this.trackComment) {
+      comments = [];
+      start = this.index - 2;
+      loc = {
+        start: {
+          line: this.lineNumber,
+          column: this.index - this.lineStart - 2
+        },
+        end: {}
+      };
+    }
+
+    while (!this.eof()) {
+      const ch = this.source.charCodeAt(this.index);
+      if (isLineTerminator(ch)) {
+        if (ch === 0x0D && this.source.charCodeAt(this.index + 1) === 0x0A) {
+          ++this.index;
+        }
+        ++this.lineNumber;
+        ++this.index;
+        this.lineStart = this.index;
+      } else if (ch === 0x2A) {
+        // Block comment ends with '*/'.
+        if (this.source.charCodeAt(this.index + 1) === 0x2F) {
+          this.index += 2;
+          if (this.trackComment) {
+            loc.end = {
+              line: this.lineNumber,
+              column: this.index - this.lineStart
+            };
+            const entry: Comment = {
+              multiLine: true,
+              slice: [start + 2, this.index - 2],
+              range: [start, this.index],
+              loc: loc
+            };
+            comments.push(entry);
+          }
+          return comments;
+        }
+        ++this.index;
+      } else {
+        ++this.index;
+      }
+    }
+
+    // Ran off the end of the file - the whole thing is a comment
+    if (this.trackComment) {
+      loc.end = {
+        line: this.lineNumber,
+        column: this.index - this.lineStart
+      };
+      const entry: Comment = {
+        multiLine: true,
+        slice: [start + 2, this.index],
+        range: [start, this.index],
+        loc: loc
+      };
+      comments.push(entry);
+    }
+
+    return comments;
+  }
+
   public scanComments() {
     let comments;
     if (this.trackComment) {
@@ -99,28 +230,44 @@ class Scanner {
       } else if (ch === 0x0002F /* 0x0002F is / */) {
         ch = this.source.charCodeAt(this.index + 1);
         if (ch === 0x0002F) {
-          // do something
+          this.index += 2;
+          const comment = this.skipSingleLineComment(2);
+          if (this.trackComment) {
+            comments = comments.concat(comment);
+          }
+          start = true;
         } else if (ch === 0x002A /* 0x002A is * */) {
-          // do something
+          this.index += 2;
+          const comment = this.skipMultiLineComment();
+          if (this.trackComment) {
+            comments = comments.concat(comment);
+          }
         } else {
           break; // is not comment
         }
       } else if (start && ch === 0x002D /* 0x002D is - */) {
         // 0x003E is >
         if (
-          (this.source.charCodeAt(this.index + 1) === 0x002D) && 
+          (this.source.charCodeAt(this.index + 1) === 0x002D) &&
           (this.source.charCodeAt(this.index + 2) === 0x003E)
         ) {
           // '-->' is a single-line comment
-          // do something
+          this.index += 3;
+          const comment = this.skipSingleLineComment(3);
+          if (this.trackComment) {
+            comments = comments.concat(comment);
+          }
         } else {
           break; // is not comment
         }
       } else if (ch === 0x003C /* 0x003C is < */) {
-        if (this.source.slice(this.index+1, this.index + 4) === '!--') {
+        if (this.source.slice(this.index + 1, this.index + 4) === '!--') {
           // is comment like <!--
           this.index += 4;
-          // do something
+          const comment = this.skipSingleLineComment(4);
+          if (this.trackComment) {
+            comments = comments.concat(comment);
+          }
         } else {
           break; // is not comment
         }
@@ -132,5 +279,6 @@ class Scanner {
     return comments;
   }
 
-  
 }
+
+const result = new Scanner(src);
