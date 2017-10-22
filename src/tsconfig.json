@@ -6,7 +6,8 @@
     "noImplicitAny": true,
     "module": "CommonJS",
     "target": "es5",
-    "strict": true
+    "strict": true,
+    "watch": true
   },
   "files": [
     "./1-tokenizer.ts"
