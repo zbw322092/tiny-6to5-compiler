@@ -10,6 +10,7 @@
     "watch": true
   },
   "files": [
+    "./scanner.ts",
     "./1-tokenizer.ts"
   ]
 }
