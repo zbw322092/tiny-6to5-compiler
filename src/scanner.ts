@@ -75,6 +75,7 @@ class Scanner {
     let start, loc;
 
     if (this.trackComment) {
+      comments = [];
       start = this.index - offset;
       loc = {
         start: {
@@ -279,6 +280,22 @@ class Scanner {
     return comments;
   }
 
+  private codePointAt(i: number): number {
+    let cp = this.source.charCodeAt(i);
+
+    if (cp >= 0xD800 && cp <= 0xDBFF) {
+      let high = cp;
+      let low = this.source.charCodeAt(i+1);
+      if (low >= 0xDC00 && low <= 0xDFFF) {
+        cp = (high - 0xD800) * 0x400 + low - 0xDC00 + 0x10000;
+      }
+    }
+
+    return cp;
+  }
+
 }
 
 const result = new Scanner(src);
+result.trackComment = true;
+const comment = result.scanComments();
