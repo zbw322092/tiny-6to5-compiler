@@ -4,7 +4,11 @@ const src = fs.readFileSync(path.join(__dirname, '../__tests__/files/file.js'), 
 
 import {
   isLineTerminator,
-  isWhiteSpace
+  isWhiteSpace,
+  isIdentifierPart,
+  isIdentifierStart,
+  fromCodePoint,
+  isHexDigit
 } from './character';
 
 interface Position {
@@ -280,18 +284,164 @@ class Scanner {
     return comments;
   }
 
+  /**
+   * convert surrogate pair to a Unicode code point
+   * reference url:
+   * https://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
+   * 
+   * @private
+   * @param {number} i 
+   * @returns {number} 
+   * @memberof Scanner
+   */
   private codePointAt(i: number): number {
     let cp = this.source.charCodeAt(i);
 
     if (cp >= 0xD800 && cp <= 0xDBFF) {
       let high = cp;
-      let low = this.source.charCodeAt(i+1);
+      let low = this.source.charCodeAt(i + 1);
       if (low >= 0xDC00 && low <= 0xDFFF) {
         cp = (high - 0xD800) * 0x400 + low - 0xDC00 + 0x10000;
       }
     }
 
     return cp;
+  }
+
+  private hexValue(ch: string): number {
+    return '0123456789abcdef'.indexOf(ch.toLowerCase());
+  }
+
+
+  private scanHexEscape(prefix: string): string | null {
+    const len = (prefix === 'u') ? 4 : 2;
+    let code = 0;
+
+    for (let i = 0; i < len; ++i) {
+      if (
+        !this.eof() &&
+        isHexDigit(this.source.charCodeAt(this.index))
+      ) {
+        code = code * 16 + this.hexValue(this.source[this.index++]);
+      } else {
+        return null;
+      }
+    }
+
+    return String.fromCharCode(code);
+  }
+
+  private scanUnicodeCodePointEscape(): string {
+    let ch = this.source[this.index];
+    let code = 0;
+
+    // At least, one hex digit is required.
+    if (ch === '}') {
+      // throw error
+    }
+
+    while (!this.eof()) {
+      ch = this.source[this.index++];
+      if (!isHexDigit(ch.charCodeAt(0))) {
+        break;
+      }
+      code = code * 16 + this.hexValue(ch);
+    }
+
+    if (code > 0x10FFFF || ch !== '}') {
+      // throw error
+    }
+
+    return fromCodePoint(code);
+  }
+
+
+
+  private getIdentifier(): string {
+    const start = this.index++;
+
+    while (!this.eof()) {
+      const ch = this.source.charCodeAt(this.index);
+      if (ch === 0x005C) {
+        // Blackslash (U+005C) marks Unicode escape sequence.
+        // do something
+        this.index = start;
+        return this.getComplexIdentifier();
+      } else if (ch >= 0xD800 && ch < 0xDFFF /* surrogate pair */) {
+        // do something
+        this.index = start;
+        return this.getComplexIdentifier();
+      }
+      if (isIdentifierPart(ch)) {
+        ++this.index;
+      } else {
+        break; // is not identifier
+      }
+    }
+
+    return this.source.slice(start, this.index);
+  }
+
+  private getComplexIdentifier(): string {
+    let cp = this.codePointAt(this.index);
+    let id = fromCodePoint(cp);
+    this.index += id.length;
+
+    let ch;
+    if (cp === 0x005C) {
+      if (this.source.charCodeAt(this.index) !== 0x75) {
+        // throw error
+      }
+      ++this.index;
+      if (this.source[this.index] === '{') {
+        ++this.index;
+        // es6 unicode code point escape
+        ch = this.scanUnicodeCodePointEscape();
+      } else {
+        // hex escape
+        ch = this.scanHexEscape('u');
+        if (
+          ch === null ||
+          ch === '\\' ||
+          isIdentifierStart(ch.charCodeAt(0))
+        ) {
+          // throw error
+        }
+      }
+      id = ch;
+    }
+
+    while (!this.eof()) {
+      cp = this.codePointAt(this.index);
+      if (!isIdentifierPart(cp)) {
+        break;
+      }
+      ch = fromCodePoint(cp);
+      id += ch;
+      this.index += ch.length;
+
+      // '\u' (U+005C, U+0075) denotes an escaped character.
+      if (cp === 0x5C) {
+        id = id.substr(0, id.length - 1);
+        if (this.source.charCodeAt(this.index) !== 0x75) {
+          // throw error
+        }
+        ++this.index;
+        if (this.source[this.index] === '{') {
+          ++this.index;
+          ch = this.scanUnicodeCodePointEscape();
+        } else {
+          ch = this.scanHexEscape('u');
+          if (ch === null || ch === '\\' || !isIdentifierPart(ch.charCodeAt(0))) {
+            // throw error
+          }
+        }
+        id += ch;
+      }
+    }
+
+    return id;
+
   }
 
 }
