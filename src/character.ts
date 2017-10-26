@@ -85,3 +85,11 @@ export const isHexDigit = (cp: number): boolean => {
     (cp >= 0x41 && cp <= 0x46) ||       // A..F
     (cp >= 0x61 && cp <= 0x66);         // a..f
 }
+
+export const isDecimalDigit = (cp: number): boolean => {
+  return (cp >= 0x30 && cp <= 0x39);      // 0..9
+}
+
+export const isOctalDigit = (cp: number): boolean => {
+  return (cp >= 0x30 && cp <= 0x37);      // 0..7
+}

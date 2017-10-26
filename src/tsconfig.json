@@ -12,6 +12,7 @@
   "files": [
     "./1-tokenizer.ts",
     "./scanner.ts",
-    "./character.ts"
+    "./character.ts",
+    "./token.ts"
   ]
 }
