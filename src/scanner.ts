@@ -31,18 +31,18 @@ export interface RawToken {
   end: number;
 }
 
-interface Position {
+export interface Position {
   line: number;
   column: number
 }
 
-interface SourceLocation {
+export interface SourceLocation {
   start: Position;
   end: Position;
   source?: string;
 }
 
-interface Comment {
+export interface Comment {
   multiLine: boolean;
   slice: number[];
   range: [number, number];
@@ -55,7 +55,7 @@ interface ScannerState {
   lineStart: number;
 }
 
-class Scanner {
+export class Scanner {
 
   readonly source: string;
   trackComment: boolean;
@@ -999,8 +999,3 @@ class Scanner {
 
 
 }
-
-const result = new Scanner(src);
-result.trackComment = true;
-const tokens = result.lex();
-console.log(tokens);
